@@ -174,6 +174,6 @@ const copy = async (key: string, value: string) => {
 
 <style scoped>
 .footer-link {
-    @apply text-ink-300 underline decoration-transparent decoration-1 underline-offset-[3px] transition duration-150 hover:text-glow-cyan hover:decoration-accent-cyan focus:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-accent-cyan;
+    @apply text-ink-100 underline decoration-ink-100/40 decoration-dotted decoration-1 underline-offset-[3px] transition duration-150 hover:text-accent-cyan hover:decoration-accent-cyan hover:decoration-solid focus:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-accent-cyan;
 }
 </style>
