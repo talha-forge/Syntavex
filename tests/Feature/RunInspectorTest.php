@@ -23,7 +23,7 @@ class RunInspectorTest extends TestCase
         parent::setUp();
 
         $this->seed(DatabaseSeeder::class);
-        $this->user = User::query()->where('email', 'admin@syntavex.local')->firstOrFail();
+        $this->user = User::query()->where('email', 'demo@syntavex.app')->firstOrFail();
     }
 
     private function flagship(): WorkflowRun
@@ -129,7 +129,7 @@ class RunInspectorTest extends TestCase
         );
 
         $cost = $steps->sum(fn (RunStep $step): float => (float) $step->cost_usd);
-        $this->assertStringContainsString('$'.number_format($cost, 2), $calls['summary']);
+        $this->assertStringContainsString('£'.number_format($cost, 2), $calls['summary']);
 
         $pending = collect($calls['items'])->firstWhere('status', 'pending');
         $this->assertNotNull($pending);
@@ -145,8 +145,8 @@ class RunInspectorTest extends TestCase
         $policy = $this->props($run)['run']['policy'];
 
         $this->assertSame($approval->risk_level, $policy['risk']['level']);
-        $this->assertSame('CRITICAL RISK', $policy['risk']['level_label']);
-        $this->assertGreaterThan(0.75, $policy['risk']['score']);
+        $this->assertSame('HIGH RISK', $policy['risk']['level_label']);
+        $this->assertGreaterThan(0.60, $policy['risk']['score']);
         $this->assertSame(
             (float) $reasoning->output_payload['confidence'],
             $policy['confidence']['value'],
@@ -164,7 +164,7 @@ class RunInspectorTest extends TestCase
         $this->assertTrue($decision['pending']);
         $this->assertNull($decision['resolution']);
         $this->assertStringContainsString('UNSIGNED', $decision['eyebrow']);
-        $this->assertStringContainsString('Refund $120.00', $decision['headline']);
+        $this->assertStringContainsString('Refund £120.00', $decision['headline']);
     }
 
     public function test_a_resolved_approval_shows_its_resolution_instead(): void
@@ -275,7 +275,7 @@ class RunInspectorTest extends TestCase
             $header['DURATION']['value'],
         );
         $this->assertSame(
-            '$'.number_format((float) $run->total_cost_usd, 2),
+            '£'.number_format((float) $run->total_cost_usd, 2),
             $header['COST']['value'],
         );
         $this->assertStringContainsString('k', $header['TOKENS']['value']);

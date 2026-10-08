@@ -45,7 +45,7 @@ class RunListResource extends JsonResource
             'tokens' => $this->total_tokens,
             'tokens_label' => $this->total_tokens === null ? '—' : number_format($this->total_tokens),
             'cost_usd' => $this->total_cost_usd === null ? null : (float) $this->total_cost_usd,
-            'cost_label' => $this->total_cost_usd === null ? '—' : '$'.number_format((float) $this->total_cost_usd, 4),
+            'cost_label' => $this->total_cost_usd === null ? '—' : '£'.number_format((float) $this->total_cost_usd, 4),
             'error_message' => $this->error_message,
             'created_at' => $this->created_at?->toIso8601String(),
             'created_at_label' => $this->created_at?->format('M j · H:i'),

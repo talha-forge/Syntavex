@@ -24,7 +24,7 @@ class CommandCentreTest extends TestCase
         parent::setUp();
 
         $this->seed(DatabaseSeeder::class);
-        $this->user = User::query()->where('email', 'admin@syntavex.local')->firstOrFail();
+        $this->user = User::query()->where('email', 'demo@syntavex.app')->firstOrFail();
     }
 
     private function props(string $uri = '/dashboard'): array
@@ -66,13 +66,13 @@ class CommandCentreTest extends TestCase
                 ->has('fleetTrust.components', 3)
                 ->has('humanAttention', 3)
                 ->has('recentRuns', 6)
-                ->has('decisionGraph.clusters', 4)
+                ->has('decisionGraph.clusters', 5)
                 ->has('decisionGraph.legend', 3)
                 ->has('governanceLedger')
                 ->has('range.options', 4)
                 ->where('workspace.name', 'Northstar Support')
-                ->where('workspace.workflow_count', 4)
-                ->where('workspace.active_workflow_count', 4)
+                ->where('workspace.workflow_count', 5)
+                ->where('workspace.active_workflow_count', 5)
         );
     }
 
@@ -187,22 +187,21 @@ class CommandCentreTest extends TestCase
     {
         $attention = $this->props()['humanAttention'];
 
-        $this->assertSame(
-            ApprovalRequest::query()->where('status', 'pending')->count(),
-            count($attention),
-        );
+        $this->assertSame(4, ApprovalRequest::query()->where('status', 'pending')->count());
+        $this->assertCount(3, $attention);
 
-        $this->assertSame(['critical', 'medium', 'low'], array_column($attention, 'risk_level'));
+        $this->assertSame(['critical', 'high', 'medium'], array_column($attention, 'risk_level'));
+        $this->assertSame('8422', $attention[0]['run_key']);
 
-        $flagship = $attention[0];
+        $flagship = $attention[1];
         $run = WorkflowRun::query()->where('run_key', '8421')->firstOrFail();
 
         $this->assertSame('8421', $flagship['run_key']);
         $this->assertSame($run->id, $flagship['run_id']);
-        $this->assertSame('CRITICAL', $flagship['risk_label']);
+        $this->assertSame('HIGH', $flagship['risk_label']);
         $this->assertSame('Priority Refund Review', $flagship['workflow']);
         $this->assertSame('Policy ceiling check', $flagship['step_name']);
-        $this->assertSame('$0.6950', $flagship['cost_label']);
+        $this->assertSame('£0.6950', $flagship['cost_label']);
         $this->assertSame(
             $run->approvalRequests()->firstOrFail()->summary,
             $flagship['summary'],
@@ -279,13 +278,13 @@ class CommandCentreTest extends TestCase
         $flagged = collect($graph['clusters'])->firstWhere('flagged', true);
 
         $this->assertNotNull($flagged);
-        $this->assertSame('Priority Refund Review', $flagged['label']);
-        $this->assertSame('8421', $flagged['core']['run_key']);
+        $this->assertSame('Account Lifecycle Automation', $flagged['label']);
+        $this->assertSame('8422', $flagged['core']['run_key']);
         $this->assertTrue($flagged['core']['flagged']);
 
         $this->assertNotNull($graph['callout']);
-        $this->assertSame('8421', $graph['callout']['run_key']);
-        $this->assertStringContainsString('critical approval open on #8421', $graph['callout']['detail']);
+        $this->assertSame('8422', $graph['callout']['run_key']);
+        $this->assertStringContainsString('critical approval open on #8422', $graph['callout']['detail']);
         $this->assertStringContainsString(
             "{$flagged['at_risk_count']} of {$flagged['run_count']} runs unresolved",
             $graph['callout']['detail'],
@@ -317,13 +316,15 @@ class CommandCentreTest extends TestCase
 
         $this->assertSame($expected, array_column($recent, 'run_key'));
 
-        $flagship = $recent[0];
+        $this->assertSame('8422', $recent[0]['run_key']);
+
+        $flagship = $recent[1];
         $this->assertSame('8421', $flagship['run_key']);
         $this->assertSame('refund-reviewer', $flagship['agent']);
         $this->assertSame('Policy ceiling check', $flagship['step']);
         $this->assertSame('5.85s', $flagship['latency_label']);
         $this->assertSame('13,900', $flagship['tokens_label']);
-        $this->assertSame('$0.6950', $flagship['cost_label']);
+        $this->assertSame('£0.6950', $flagship['cost_label']);
         $this->assertSame('Needs review', $flagship['status_label']);
         $this->assertSame('review', $flagship['tone']);
     }

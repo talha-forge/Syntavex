@@ -25,7 +25,7 @@ class ReviewQueueTest extends TestCase
 
         $this->seed(DatabaseSeeder::class);
         $this->seed(DestructiveInterceptSeeder::class);
-        $this->user = User::query()->where('email', 'admin@syntavex.local')->firstOrFail();
+        $this->user = User::query()->where('email', 'demo@syntavex.app')->firstOrFail();
     }
 
     private function intercept(): ApprovalRequest
@@ -141,12 +141,12 @@ class ReviewQueueTest extends TestCase
         }
     }
 
-    public function test_a_critical_but_reversible_breach_renders_as_a_normal_row(): void
+    public function test_a_high_risk_but_reversible_breach_renders_as_a_normal_row(): void
     {
         $queue = collect($this->props()['queue']);
 
         $refund = $queue->firstWhere('run_key', '8421');
-        $this->assertSame('CRITICAL', $refund['risk']['level_label']);
+        $this->assertSame('HIGH', $refund['risk']['level_label']);
         $this->assertFalse($refund['frozen']);
         $this->assertFalse($refund['intercept']['irreversible']);
         $this->assertNotSame('DESTRUCTIVE', $refund['category']);

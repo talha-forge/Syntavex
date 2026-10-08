@@ -17,7 +17,7 @@ import { Link } from '@inertiajs/vue3';
             />
         </div>
 
-        <div class="relative flex w-full max-w-[26rem] flex-col items-center gap-7">
+        <div class="relative flex w-full max-w-[30rem] flex-col items-center gap-7">
             <Link
                 href="/"
                 class="flex items-center gap-3 rounded-xl px-1 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-navy-base"
@@ -57,6 +57,8 @@ import { Link } from '@inertiajs/vue3';
                     <slot />
                 </div>
             </div>
+
+            <slot name="footer" />
         </div>
     </div>
 </template>

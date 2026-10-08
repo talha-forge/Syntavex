@@ -14,7 +14,7 @@ final class RunObjective
 
         if (isset($payload['requested_amount'])) {
             return sprintf(
-                'Refund $%s · %s',
+                'Refund £%s · %s',
                 number_format((float) $payload['requested_amount'], 2),
                 isset($payload['ticket_id']) ? 'ticket '.$payload['ticket_id'] : 'no ticket',
             );

@@ -66,7 +66,7 @@ class RunInspectorController extends Controller
                 'label' => 'COST',
                 'value' => $run->total_cost_usd === null
                     ? '—'
-                    : '$'.number_format((float) $run->total_cost_usd, 2),
+                    : '£'.number_format((float) $run->total_cost_usd, 2),
                 'caption' => $this->spendShare($run, $ended),
                 'tone' => 'accent',
             ],

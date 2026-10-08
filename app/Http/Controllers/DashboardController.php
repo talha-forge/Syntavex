@@ -22,7 +22,7 @@ class DashboardController extends Controller
 
     private const HUMAN_ATTENTION_LIMIT = 3;
 
-    private const TARGET_COST_PER_RUN_USD = 0.75;
+    private const TARGET_COST_PER_RUN_GBP = 0.75;
 
     private const INTERVENTION_STATUSES = ['needs_review', 'failed'];
 
@@ -162,7 +162,7 @@ class DashboardController extends Controller
             'cost_window' => [
                 'label' => $range['cost_label'],
                 'value' => round($spend, 4),
-                'display' => '$'.number_format($spend, 2),
+                'display' => '£'.number_format($spend, 2),
                 'caption' => $total.' run'.($total === 1 ? '' : 's').' · '.$windowCaption,
             ],
         ];
@@ -188,7 +188,7 @@ class DashboardController extends Controller
 
         $averageCost = (float) $runs->avg('total_cost_usd');
         $costEfficiency = $averageCost > 0
-            ? min(1.0, self::TARGET_COST_PER_RUN_USD / $averageCost)
+            ? min(1.0, self::TARGET_COST_PER_RUN_GBP / $averageCost)
             : 1.0;
 
         $score = 100 * (
@@ -330,7 +330,7 @@ class DashboardController extends Controller
                     'flagged' => false,
                     'cost_label' => $run->total_cost_usd === null
                         ? '—'
-                        : '$'.number_format((float) $run->total_cost_usd, 4),
+                        : '£'.number_format((float) $run->total_cost_usd, 4),
                     'x' => round($cx + ($ringRadius * cos($nodeAngle)), 2),
                     'y' => round($cy + ($ringRadius * sin($nodeAngle)), 2),
                     'r' => $atRisk ? 7.0 : 5.0,
@@ -346,7 +346,7 @@ class DashboardController extends Controller
                 'flagged' => true,
                 'cost_label' => $coreRun->total_cost_usd === null
                     ? '—'
-                    : '$'.number_format((float) $coreRun->total_cost_usd, 4),
+                    : '£'.number_format((float) $coreRun->total_cost_usd, 4),
                 'x' => round($cx, 2),
                 'y' => round($cy, 2),
                 'r' => 11.0,

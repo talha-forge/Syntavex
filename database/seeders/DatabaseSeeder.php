@@ -44,18 +44,20 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        User::query()->updateOrCreate(
-            ['email' => 'admin@syntavex.local'],
-            [
-                'name' => 'SyntaVex Admin',
-                'password' => 'password',
-                'email_verified_at' => now(),
-            ],
-        );
+        User::query()->delete();
+
+        User::query()->create([
+            'name' => 'Demo Reviewer',
+            'email' => 'demo@syntavex.app',
+            'password' => 'syntavex-demo',
+            'email_verified_at' => now(),
+        ]);
 
         $this->seedWorkspace();
         $this->seedWorkflows();
         $this->seedRuns();
+
+        $this->call(DestructiveInterceptSeeder::class);
     }
 
     private function seedWorkspace(): void
@@ -249,7 +251,7 @@ class DatabaseSeeder extends Seeder
                     'customer_id' => 'CUS-9281',
                     'ticket_id' => 'ZD-40219',
                     'requested_amount' => 120.00,
-                    'currency' => 'USD',
+                    'currency' => 'GBP',
                     'reason' => '47-minute API outage',
                 ],
             ),
@@ -260,8 +262,8 @@ class DatabaseSeeder extends Seeder
                     'account_name' => 'Northwind Logistics',
                     'tier' => 'Enterprise',
                     'churn_risk' => 'low',
-                    'mrr_usd' => 8400,
-                    'lifetime_refunds_usd' => 240.00,
+                    'mrr_gbp' => 8400,
+                    'lifetime_refunds_gbp' => 240.00,
                     'open_tickets' => 2,
                 ],
             ),
@@ -271,7 +273,7 @@ class DatabaseSeeder extends Seeder
                     'confidence' => 0.94,
                     'decision' => 'approve',
                     'rationale' => 'Verified 47-minute platform outage on '.$outageDate.' affecting this account. Enterprise tier with low churn risk and a clean refund history; goodwill credit is proportionate to the SLA breach.',
-                    'drafted_apology' => "Hi Dana, you're right, and I'm sorry. Our API was unavailable for 47 minutes yesterday, which is squarely on us and well outside the uptime we commit to on your Enterprise plan. I've put through a $120 credit to cover the affected window; it should land on your next invoice. The root cause has been fixed and I'm happy to share the incident write-up if useful.",
+                    'drafted_apology' => "Hi Dana, you're right, and I'm sorry. Our API was unavailable for 47 minutes yesterday, which is squarely on us and well outside the uptime we commit to on your Enterprise plan. I've put through a £120 credit to cover the affected window; it should land on your next invoice. The root cause has been fixed and I'm happy to share the incident write-up if useful.",
                     'policy_references' => ['refund-policy-v4 §3.2', 'sla-enterprise §1.4'],
                 ],
             ),
@@ -286,7 +288,7 @@ class DatabaseSeeder extends Seeder
                 ],
             ),
             $this->step('Issue Stripe credit', 'mutation', 'pending', null, null,
-                ['provider' => 'stripe', 'customer_id' => 'CUS-9281', 'amount' => 120.00, 'currency' => 'USD'],
+                ['provider' => 'stripe', 'customer_id' => 'CUS-9281', 'amount' => 120.00, 'currency' => 'GBP'],
                 null,
             ),
         ];
@@ -297,11 +299,11 @@ class DatabaseSeeder extends Seeder
         return [
             $this->step('Zendesk refund request received', 'webhook', 'completed', 286, null,
                 ['source' => 'zendesk.webhook', 'event' => 'refund.requested'],
-                ['customer_id' => 'CUS-7734', 'requested_amount' => 65.00, 'currency' => 'USD', 'reason' => 'Goodwill for repeated onboarding friction', 'ticket_id' => null],
+                ['customer_id' => 'CUS-7734', 'requested_amount' => 65.00, 'currency' => 'GBP', 'reason' => 'Goodwill for repeated onboarding friction', 'ticket_id' => null],
             ),
             $this->step('Fetch account context (HubSpot)', 'retrieval', 'completed', 1042, 1180,
                 ['customer_id' => 'CUS-7734'],
-                ['customer_id' => 'CUS-7734', 'account_name' => 'Calder Retail Group', 'tier' => 'Growth', 'churn_risk' => 'medium', 'mrr_usd' => 1900],
+                ['customer_id' => 'CUS-7734', 'account_name' => 'Calder Retail Group', 'tier' => 'Growth', 'churn_risk' => 'medium', 'mrr_gbp' => 1900],
             ),
             $this->step('Evaluate refund policy', 'llm_reasoning', 'completed', 3680, 9240,
                 ['policy_document' => 'refund-policy-v4', 'model' => 'claude-opus-5'],
@@ -316,7 +318,7 @@ class DatabaseSeeder extends Seeder
                 ['policy_rule' => 'goodwill_requires_ticket_reference', 'ticket_id' => null, 'amount' => 65.00, 'reason' => 'Goodwill credit has no linked support ticket'],
             ),
             $this->step('Issue Stripe credit', 'mutation', 'pending', null, null,
-                ['provider' => 'stripe', 'customer_id' => 'CUS-7734', 'amount' => 65.00, 'currency' => 'USD'],
+                ['provider' => 'stripe', 'customer_id' => 'CUS-7734', 'amount' => 65.00, 'currency' => 'GBP'],
                 null,
             ),
         ];
@@ -359,8 +361,8 @@ class DatabaseSeeder extends Seeder
         $gate = collect($steps)->firstWhere('step_type', 'approval_gate');
 
         [$risk, $summary] = match ($scenario) {
-            'flagship' => ['critical', 'Agent authorised a $120 refund above the $100 policy ceiling'],
-            'goodwill_no_ticket' => ['medium', 'Goodwill credit of $65 issued with no linked support ticket. Policy requires a ticket reference before payout.'],
+            'flagship' => ['high', 'Agent authorised a £120 refund above the £100 policy ceiling'],
+            'goodwill_no_ticket' => ['medium', 'Goodwill credit of £65 issued with no linked support ticket. Policy requires a ticket reference before payout.'],
             'low_confidence_downgrade' => ['low', 'Low-confidence (0.42) escalation tier downgrade from P1 to P3 on an Enterprise account. Informational review.'],
         };
 
@@ -430,10 +432,10 @@ class DatabaseSeeder extends Seeder
             'priority-refund-review' => [
                 ['name' => 'Zendesk refund request received', 'type' => 'webhook',
                     'in' => fn () => ['source' => 'zendesk.webhook', 'event' => 'refund.requested'],
-                    'out' => fn () => ['customer_id' => $customer(), 'ticket_id' => $ticket(), 'requested_amount' => round(random_int(1500, 9500) / 100, 2), 'currency' => 'USD']],
+                    'out' => fn () => ['customer_id' => $customer(), 'ticket_id' => $ticket(), 'requested_amount' => round(random_int(1500, 9500) / 100, 2), 'currency' => 'GBP']],
                 ['name' => 'Fetch account context (HubSpot)', 'type' => 'retrieval',
                     'in' => fn () => ['objects' => ['company', 'subscription']],
-                    'out' => fn () => ['tier' => ['Growth', 'Enterprise', 'Starter'][random_int(0, 2)], 'churn_risk' => ['low', 'low', 'medium'][random_int(0, 2)], 'mrr_usd' => random_int(400, 9000)]],
+                    'out' => fn () => ['tier' => ['Growth', 'Enterprise', 'Starter'][random_int(0, 2)], 'churn_risk' => ['low', 'low', 'medium'][random_int(0, 2)], 'mrr_gbp' => random_int(400, 9000)]],
                 ['name' => 'Evaluate refund policy', 'type' => 'llm_reasoning',
                     'in' => fn () => ['policy_document' => 'refund-policy-v4', 'model' => 'claude-opus-5'],
                     'out' => fn () => ['confidence' => round(random_int(78, 99) / 100, 2), 'decision' => 'approve', 'within_policy_ceiling' => true]],
@@ -546,7 +548,7 @@ class DatabaseSeeder extends Seeder
             default => ['approval_requested', [
                 'run_key' => $run->run_key,
                 'risk_level' => match ($spec['scenario']) {
-                    'flagship' => 'critical',
+                    'flagship' => 'high',
                     'goodwill_no_ticket' => 'medium',
                     default => 'low',
                 },

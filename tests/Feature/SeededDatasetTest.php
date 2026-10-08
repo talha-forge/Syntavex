@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\ApprovalRequest;
 use App\Models\AuditEvent;
 use App\Models\RunStep;
+use App\Models\User;
 use App\Models\Workflow;
 use App\Models\WorkflowRun;
 use App\Models\Workspace;
@@ -23,14 +24,22 @@ class SeededDatasetTest extends TestCase
         $this->seed(DatabaseSeeder::class);
     }
 
-    public function test_it_seeds_one_workspace_with_four_workflows_and_forty_runs(): void
+    public function test_it_seeds_only_the_demo_reviewer(): void
+    {
+        $this->assertSame(
+            [['name' => 'Demo Reviewer', 'email' => 'demo@syntavex.app']],
+            User::query()->get(['name', 'email'])->toArray(),
+        );
+    }
+
+    public function test_it_seeds_one_workspace_with_five_workflows_and_forty_one_runs(): void
     {
         $this->assertSame(1, Workspace::query()->count());
-        $this->assertSame(4, Workflow::query()->count());
-        $this->assertSame(40, WorkflowRun::query()->count());
+        $this->assertSame(5, Workflow::query()->count());
+        $this->assertSame(41, WorkflowRun::query()->count());
 
         $this->assertSame(
-            ['api-anomaly-investigator', 'enterprise-ticket-triage', 'priority-refund-review', 'weekly-account-health-brief'],
+            ['account-lifecycle-automation', 'api-anomaly-investigator', 'enterprise-ticket-triage', 'priority-refund-review', 'weekly-account-health-brief'],
             Workflow::query()->orderBy('slug')->pluck('slug')->all(),
         );
     }
@@ -43,18 +52,18 @@ class SeededDatasetTest extends TestCase
             ->pluck('aggregate', 'status')
             ->all();
 
-        $this->assertSame(['completed' => 32, 'failed' => 5, 'needs_review' => 3], $counts);
+        $this->assertSame(['completed' => 32, 'failed' => 5, 'needs_review' => 4], $counts);
     }
 
-    public function test_run_keys_run_chronologically_and_end_on_the_flagship(): void
+    public function test_run_keys_run_chronologically_and_end_on_the_destructive_intercept(): void
     {
         $keys = WorkflowRun::query()->orderBy('created_at')->pluck('run_key')->all();
 
-        $this->assertSame(range(8382, 8421), array_map('intval', $keys));
-        $this->assertSame('8421', end($keys));
+        $this->assertSame(range(8382, 8422), array_map('intval', $keys));
+        $this->assertSame('8422', end($keys));
 
         $newest = WorkflowRun::query()->orderByDesc('created_at')->firstOrFail();
-        $this->assertSame('8421', $newest->run_key);
+        $this->assertSame('8422', $newest->run_key);
     }
 
     public function test_every_run_total_is_the_sum_of_its_own_steps(): void
@@ -121,8 +130,8 @@ class SeededDatasetTest extends TestCase
     {
         $approvals = ApprovalRequest::query()->with(['runStep', 'workflowRun'])->get();
 
-        $this->assertCount(3, $approvals);
-        $this->assertSame(['critical', 'low', 'medium'], $approvals->pluck('risk_level')->sort()->values()->all());
+        $this->assertCount(4, $approvals);
+        $this->assertSame(['critical', 'high', 'low', 'medium'], $approvals->pluck('risk_level')->sort()->values()->all());
 
         foreach ($approvals as $approval) {
             $this->assertSame('pending', $approval->status);
@@ -136,7 +145,7 @@ class SeededDatasetTest extends TestCase
 
     public function test_every_run_is_bracketed_by_two_audit_events(): void
     {
-        $this->assertSame(80, AuditEvent::query()->count());
+        $this->assertSame(82, AuditEvent::query()->count());
 
         foreach (WorkflowRun::query()->with('auditEvents')->get() as $run) {
             $actions = $run->auditEvents->pluck('action')->all();
@@ -161,7 +170,7 @@ class SeededDatasetTest extends TestCase
         $this->assertEquals($amount, $gate->input_payload['requested_amount']);
         $this->assertEquals($amount, $gate->output_payload['requested_amount']);
         $this->assertEquals($amount, $mutation->input_payload['amount']);
-        $this->assertStringContainsString('$120', $approval->summary);
+        $this->assertStringContainsString('£120', $approval->summary);
 
         $this->assertEquals(
             $gate->output_payload['requested_amount'] - $gate->output_payload['policy_limit'],

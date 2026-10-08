@@ -54,7 +54,7 @@ class RunRowResource extends JsonResource
             'cost_usd' => $this->total_cost_usd === null ? null : (float) $this->total_cost_usd,
             'cost_label' => $this->total_cost_usd === null
                 ? '—'
-                : '$'.number_format((float) $this->total_cost_usd, 2),
+                : '£'.number_format((float) $this->total_cost_usd, 2),
             'status' => $this->status,
             'status_label' => self::STATUS_LABELS[$this->status] ?? strtoupper(str_replace('_', ' ', $this->status)),
             'tone' => self::STATUS_TONES[$this->status] ?? 'info',
@@ -178,7 +178,7 @@ class RunRowResource extends JsonResource
 
         $headline = match (true) {
             $outcome !== null && $amount !== null => sprintf(
-                'Refund $%s %s',
+                'Refund £%s %s',
                 number_format((float) $amount, 2),
                 lcfirst($outcome),
             ),

@@ -23,7 +23,7 @@ class RunsExplorerTest extends TestCase
         parent::setUp();
 
         $this->seed(DatabaseSeeder::class);
-        $this->user = User::query()->where('email', 'admin@syntavex.local')->firstOrFail();
+        $this->user = User::query()->where('email', 'demo@syntavex.app')->firstOrFail();
     }
 
     private function flagship(): WorkflowRun
@@ -196,7 +196,7 @@ class RunsExplorerTest extends TestCase
             ->sum('total_cost_usd');
 
         $this->assertSame(
-            '$'.number_format($expected, 2).' / 3d',
+            '£'.number_format($expected, 2).' / 3d',
             $props['distribution']['cost_window_label'],
         );
     }
@@ -366,14 +366,14 @@ class RunsExplorerTest extends TestCase
         $this->assertSame('needs_review', $row['status']);
         $this->assertSame('NEEDS REVIEW', $row['status_label']);
         $this->assertSame('refund-reviewer', $row['agent']);
-        $this->assertSame('Refund $120.00 · ticket ZD-40219', $row['objective']);
+        $this->assertSame('Refund £120.00 · ticket ZD-40219', $row['objective']);
 
         $this->assertSame(5850, $row['duration_ms']);
         $this->assertSame('5.85s', $row['duration_label']);
         $this->assertSame(13900, $row['tokens']);
         $this->assertSame('13.9k', $row['tokens_label']);
         $this->assertSame(0.695, $row['cost_usd']);
-        $this->assertSame('$0.70', $row['cost_label']);
+        $this->assertSame('£0.70', $row['cost_label']);
         $this->assertSame($run->created_at->format('M j · H:i:s'), $row['started_label']);
 
         $this->assertSame(5850, $run->total_duration_ms);
@@ -387,18 +387,18 @@ class RunsExplorerTest extends TestCase
         $this->assertSame('claude-opus-5', $expansion['model']);
         $this->assertCount(5, $expansion['trace']);
 
-        $this->assertSame('critical', $expansion['risk']['level']);
-        $this->assertSame(0.79, $expansion['risk']['score']);
+        $this->assertSame('high', $expansion['risk']['level']);
+        $this->assertSame(0.64, $expansion['risk']['score']);
         $this->assertSame('automated_refund_ceiling breached', $expansion['risk']['rule']);
 
-        $this->assertSame('Refund $120.00 approved', $expansion['decision']['headline']);
+        $this->assertSame('Refund £120.00 approved', $expansion['decision']['headline']);
         $this->assertSame(0.94, $expansion['decision']['confidence']);
         $this->assertFalse($expansion['decision']['signed']);
         $this->assertSame('unsigned', $expansion['decision']['signed_label']);
 
         $approval = $run->approvalRequests()->firstOrFail();
         $this->assertSame($approval->summary, $expansion['decision']['summary']);
-        $this->assertStringContainsString('$120', $expansion['decision']['summary']);
+        $this->assertStringContainsString('£120', $expansion['decision']['summary']);
 
         $gate = $run->steps()->where('step_type', 'approval_gate')->firstOrFail();
         $this->assertEquals(120.0, $gate->input_payload['requested_amount']);
@@ -413,9 +413,9 @@ class RunsExplorerTest extends TestCase
         $webhook = $run->steps()->where('step_type', 'webhook')->firstOrFail();
 
         $this->assertEquals(120.0, $webhook->output_payload['requested_amount']);
-        $this->assertStringContainsString('$120 credit', $reasoning->output_payload['drafted_apology']);
+        $this->assertStringContainsString('£120 credit', $reasoning->output_payload['drafted_apology']);
         $this->assertStringContainsString(
-            '$120 refund above the $100 policy ceiling',
+            '£120 refund above the £100 policy ceiling',
             $run->approvalRequests()->firstOrFail()->summary,
         );
 
@@ -428,7 +428,7 @@ class RunsExplorerTest extends TestCase
     public function test_a_goodwill_credit_reads_as_a_refund_with_no_ticket(): void
     {
         $props = $this->props('/runs?status=needs_review');
-        $row = collect($props['runs'])->firstWhere('objective', 'Refund $65.00 · no ticket');
+        $row = collect($props['runs'])->firstWhere('objective', 'Refund £65.00 · no ticket');
 
         $this->assertNotNull($row, 'The goodwill run should describe itself as a ticketless refund.');
         $this->assertSame('Approved with flag by agent', $row['expansion']['decision']['headline']);

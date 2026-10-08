@@ -70,7 +70,7 @@ class CoverController extends Controller
                     ? 'No runs recorded'
                     : Carbon::parse($latest->created_at)->format('M j · H:i'),
                 'tokens_display' => $this->compactNumber($tokens),
-                'spend_display' => '$'.number_format($spend, 2),
+                'spend_display' => '£'.number_format($spend, 2),
                 'autonomy_display' => $total === 0
                     ? '—'
                     : number_format((1 - ($interventions / $total)) * 100, 1).'%',

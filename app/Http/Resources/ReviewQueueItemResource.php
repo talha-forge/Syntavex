@@ -91,7 +91,7 @@ class ReviewQueueItemResource extends JsonResource
                 $out['qualifier'] ?? 'in scope',
             ),
             isset($out['requested_amount'], $out['policy_limit']) => sprintf(
-                'Refund $%s above the $%s ceiling',
+                'Refund £%s above the £%s ceiling',
                 number_format((float) $out['requested_amount'], 2),
                 number_format((float) $out['policy_limit'], 2),
             ),
@@ -102,7 +102,7 @@ class ReviewQueueItemResource extends JsonResource
                 number_format((float) ($out['threshold'] ?? 0), 2),
             ),
             isset($out['amount']) => sprintf(
-                '$%s credit · %s',
+                '£%s credit · %s',
                 number_format((float) $out['amount'], 2),
                 $out['reason'] ?? 'held for review',
             ),
@@ -123,8 +123,8 @@ class ReviewQueueItemResource extends JsonResource
     {
         return match (true) {
             isset($out['rows_affected']) => number_format((float) $out['rows_affected']).' rows',
-            isset($out['requested_amount']) => '$'.number_format((float) $out['requested_amount'], 2),
-            isset($out['amount']) => '$'.number_format((float) $out['amount'], 2),
+            isset($out['requested_amount']) => '£'.number_format((float) $out['requested_amount'], 2),
+            isset($out['amount']) => '£'.number_format((float) $out['amount'], 2),
             default => null,
         };
     }
@@ -156,7 +156,7 @@ class ReviewQueueItemResource extends JsonResource
         $attempted = (float) ($rows ? $out['rows_affected'] : ($out['requested_amount'] ?? 0));
         $figure = fn (float $value): string => $rows
             ? number_format($value).' rows'
-            : '$'.number_format($value, 2);
+            : '£'.number_format($value, 2);
 
         return [
             'rule' => $in['rule'] ?? $out['policy_rule'] ?? 'policy gate',
@@ -222,8 +222,8 @@ class ReviewQueueItemResource extends JsonResource
         }
 
         if (isset($out['requested_amount'], $out['policy_limit'])) {
-            $rows[] = ['label' => 'requested', 'value' => '$'.number_format((float) $out['requested_amount'], 2)];
-            $rows[] = ['label' => 'automated ceiling', 'value' => '$'.number_format((float) $out['policy_limit'], 2)];
+            $rows[] = ['label' => 'requested', 'value' => '£'.number_format((float) $out['requested_amount'], 2)];
+            $rows[] = ['label' => 'automated ceiling', 'value' => '£'.number_format((float) $out['policy_limit'], 2)];
         }
 
         if ($held !== null) {

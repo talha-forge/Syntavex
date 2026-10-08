@@ -318,7 +318,7 @@ class RunsController extends Controller
                 : 'avg '.number_format($avgDuration / 1000, 2).'s',
             'cost_window_label' => $filteredTotal === 0
                 ? '— / '.self::COST_WINDOW_DAYS.'d'
-                : '$'.number_format($costWindow, 2).' / '.self::COST_WINDOW_DAYS.'d',
+                : '£'.number_format($costWindow, 2).' / '.self::COST_WINDOW_DAYS.'d',
             'filtered_total' => $filteredTotal,
         ];
     }

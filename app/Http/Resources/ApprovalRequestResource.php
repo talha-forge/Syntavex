@@ -34,7 +34,7 @@ class ApprovalRequestResource extends JsonResource
             'run_status' => $run?->status,
             'workflow' => $run?->workflow?->name,
             'cost_usd' => $run?->total_cost_usd === null ? null : (float) $run->total_cost_usd,
-            'cost_label' => $run?->total_cost_usd === null ? '—' : '$'.number_format((float) $run->total_cost_usd, 4),
+            'cost_label' => $run?->total_cost_usd === null ? '—' : '£'.number_format((float) $run->total_cost_usd, 4),
             'waiting_since' => $this->created_at?->toIso8601String(),
             'waiting_label' => $this->created_at?->diffForHumans(short: true),
         ];

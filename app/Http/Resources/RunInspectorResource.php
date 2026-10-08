@@ -216,7 +216,7 @@ class RunInspectorResource extends JsonResource
                     $in['rule'] ?? 'gate',
                     isset($out['over_by'])
                         ? sprintf(
-                            ' · $%s requested against a $%s ceiling, over by $%s',
+                            ' · £%s requested against a £%s ceiling, over by £%s',
                             number_format((float) ($out['requested_amount'] ?? $in['requested_amount'] ?? 0), 2),
                             number_format((float) ($out['policy_limit'] ?? $in['policy_limit'] ?? 0), 2),
                             number_format((float) $out['over_by'], 2),
@@ -255,7 +255,7 @@ class RunInspectorResource extends JsonResource
 
         return [
             'summary' => sprintf(
-                '%d invocation%s · $%s',
+                '%d invocation%s · £%s',
                 $calls->count(),
                 $calls->count() === 1 ? '' : 's',
                 number_format($cost, 2),
@@ -272,7 +272,7 @@ class RunInspectorResource extends JsonResource
                 'input' => $this->inline($this->payload($step, 'input_payload')),
                 'output' => $step->output_payload === null ? null : $this->inline($this->payload($step, 'output_payload')),
                 'duration_label' => $this->durationLabel($step->duration_ms),
-                'cost_label' => $step->cost_usd === null ? '—' : '$'.number_format((float) $step->cost_usd, 2),
+                'cost_label' => $step->cost_usd === null ? '—' : '£'.number_format((float) $step->cost_usd, 2),
             ])->all(),
         ];
     }
@@ -350,7 +350,7 @@ class RunInspectorResource extends JsonResource
 
         $headline = match (true) {
             $outcome !== null && $amount !== null => sprintf(
-                'Refund $%s %s',
+                'Refund £%s %s',
                 number_format((float) $amount, 2),
                 lcfirst($outcome),
             ),

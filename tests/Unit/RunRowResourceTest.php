@@ -84,7 +84,7 @@ class RunRowResourceTest extends TestCase
 
         $this->assertSame('5.85s', $row['duration_label']);
         $this->assertSame('13.9k', $row['tokens_label']);
-        $this->assertSame('$0.70', $row['cost_label']);
+        $this->assertSame('£0.70', $row['cost_label']);
         $this->assertSame(0.695, $row['cost_usd']);
         $this->assertSame('Sep 19 · 21:35:22', $row['started_label']);
         $this->assertSame('NEEDS REVIEW', $row['status_label']);
@@ -120,7 +120,7 @@ class RunRowResourceTest extends TestCase
             ]),
         ]);
 
-        $this->assertSame('Refund $120.00 · ticket ZD-40219', $row['objective']);
+        $this->assertSame('Refund £120.00 · ticket ZD-40219', $row['objective']);
     }
 
     public function test_a_refund_with_no_linked_ticket_still_reads_as_a_refund(): void
@@ -132,7 +132,7 @@ class RunRowResourceTest extends TestCase
             ]),
         ]);
 
-        $this->assertSame('Refund $65.00 · no ticket', $row['objective']);
+        $this->assertSame('Refund £65.00 · no ticket', $row['objective']);
     }
 
     public function test_it_reads_triage_health_brief_and_anomaly_objectives(): void
@@ -271,7 +271,7 @@ class RunRowResourceTest extends TestCase
             $this->step('Gate', 'approval_gate', 'blocked', input: ['requested_amount' => 120.0]),
         ]);
 
-        $this->assertSame('Refund $120.00 approved', $row['expansion']['decision']['headline']);
+        $this->assertSame('Refund £120.00 approved', $row['expansion']['decision']['headline']);
         $this->assertSame('confidence 0.94', $row['expansion']['decision']['confidence_label']);
     }
 
