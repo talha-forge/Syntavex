@@ -50,6 +50,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/', 303)->with('toast', [
+            'tone' => 'success',
+            'message' => 'Signed out. Enter the demo again anytime.',
+        ]);
     }
 }

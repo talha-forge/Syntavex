@@ -8,6 +8,7 @@ import KpiStatCard from '@/Components/KpiStatCard.vue';
 import LiveExecutionPulse from '@/Components/LiveExecutionPulse.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import RecentRunsTable from '@/Components/RecentRunsTable.vue';
+import SessionChip from '@/Components/SessionChip.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import type { CommandCentreProps, DashboardRangeKey } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
@@ -103,6 +104,8 @@ const pulseStats = computed(() => [
                     </div>
 
                     <FleetPulsePill :pulse="pulse" />
+
+                    <SessionChip />
 
                     <div class="relative shrink-0">
                         <label for="range-select" class="sr-only">

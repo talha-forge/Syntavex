@@ -3,12 +3,21 @@ import FleetPulsePill from '@/Components/FleetPulsePill.vue';
 import KpiStatCard from '@/Components/KpiStatCard.vue';
 import OrbitalConstellation from '@/Components/OrbitalConstellation.vue';
 import PageHeader from '@/Components/PageHeader.vue';
+import SessionChip from '@/Components/SessionChip.vue';
+import { useDemoLogin } from '@/composables/useDemoLogin';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import type { CoverProps } from '@/types';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const props = defineProps<CoverProps>();
+
+const page = usePage();
+const signedIn = computed(() => Boolean(page.props.auth?.user));
+const { form: demo, enterDemo } = useDemoLogin();
+
+const PRIMARY =
+    'flex h-9 shrink-0 items-center gap-2 rounded-[9px] border border-accent-cyan/40 bg-accent-cyan/[0.12] px-4 text-xs font-semibold text-glow-cyan transition duration-200 hover:border-accent-cyan/70 hover:shadow-[0_0_22px_rgba(45,226,230,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan disabled:cursor-wait disabled:opacity-60';
 
 const workspaceLabel = computed(
     () => props.workspace?.name ?? 'No workspace provisioned',
@@ -48,15 +57,21 @@ const signature = computed(() => [
                 <template #actions>
                     <FleetPulsePill :pulse="pulse" />
 
-                    <Link
-                        href="/dashboard"
-                        class="flex h-9 shrink-0 items-center gap-2 rounded-[9px] border border-accent-cyan/40 bg-accent-cyan/[0.12] px-4 text-xs font-semibold text-glow-cyan transition duration-200 hover:border-accent-cyan/70 hover:shadow-[0_0_22px_rgba(45,226,230,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan"
-                    >
+                    <SessionChip />
+
+                    <Link v-if="signedIn" href="/dashboard" :class="PRIMARY">
                         Enter Command Centre
                         <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
                             <path d="M4 12h15M13.5 6.5 19.5 12l-6 5.5" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </Link>
+
+                    <button v-else type="button" :class="PRIMARY" :disabled="demo.processing" @click="enterDemo">
+                        {{ demo.processing ? 'Entering demo…' : 'Enter demo' }}
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                            <path d="M4 12h15M13.5 6.5 19.5 12l-6 5.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
                 </template>
             </PageHeader>
 

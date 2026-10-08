@@ -69,6 +69,7 @@ class CoverController extends Controller
                 'latest_run_label' => $latest === null
                     ? 'No runs recorded'
                     : Carbon::parse($latest->created_at)->format('M j · H:i'),
+                'latest_run_at' => $latest === null ? null : Carbon::parse($latest->created_at)->toIso8601String(),
                 'tokens_display' => $this->compactNumber($tokens),
                 'spend_display' => '£'.number_format($spend, 2),
                 'autonomy_display' => $total === 0

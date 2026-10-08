@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FlashToast from '@/Components/FlashToast.vue';
 import { Link } from '@inertiajs/vue3';
 </script>
 
@@ -60,5 +61,7 @@ import { Link } from '@inertiajs/vue3';
 
             <slot name="footer" />
         </div>
+
+        <FlashToast />
     </div>
 </template>

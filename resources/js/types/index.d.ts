@@ -5,11 +5,22 @@ export interface User {
     email_verified_at?: string;
 }
 
+export type ToastTone = 'success' | 'error';
+
+export interface FlashToast {
+    id: string;
+    tone: ToastTone;
+    message: string;
+}
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {
     auth: {
         user: User;
+    };
+    flash: {
+        toast: FlashToast | null;
     };
     pendingReviews: number;
 };
@@ -199,6 +210,7 @@ export interface GovernanceLedgerData {
 export interface FleetPulse {
     live: boolean;
     latest_run_label: string;
+    latest_run_at: string | null;
 }
 
 export interface CommandCentreProps {

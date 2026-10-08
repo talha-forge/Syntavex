@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import FlashToast from '@/Components/FlashToast.vue';
+import { useToast } from '@/composables/useToast';
+import { Link, router, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 type NavItem = {
     label: string;
@@ -35,6 +37,8 @@ const currentLabel = computed(() => {
 
 const accountName = computed(() => page.props.auth?.user?.name ?? '');
 
+const accountEmail = computed(() => page.props.auth?.user?.email ?? '');
+
 const pendingReviews = computed(() => page.props.pendingReviews ?? 0);
 
 const isAuthenticated = computed(() => Boolean(page.props.auth?.user));
@@ -55,6 +59,33 @@ const initials = computed(() => {
 
     return letters.toUpperCase();
 });
+
+const SIGN_OUT_DELAY_MS = 350;
+
+const { notify } = useToast();
+const signingOut = ref(false);
+
+// The short delay lets the spinner register before the page swaps, and the
+// guard stops a double click racing a second logout onto the old session.
+const signOut = () => {
+    if (signingOut.value) {
+        return;
+    }
+
+    signingOut.value = true;
+
+    setTimeout(() => {
+        router.post('/logout', {}, {
+            onSuccess: (visit) => {
+                if (!visit.props.flash?.toast) {
+                    notify('Signed out. Enter the demo again anytime.');
+                }
+            },
+            onError: () => (signingOut.value = false),
+            onCancel: () => (signingOut.value = false),
+        });
+    }, SIGN_OUT_DELAY_MS);
+};
 
 const TILE =
     'relative flex h-11 w-11 items-center justify-center rounded-xl border border-transparent text-ink-600 transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-navy-base';
@@ -265,24 +296,45 @@ const classesFor = (item: NavItem): string => {
             <template v-if="isAuthenticated">
                 <Link
                     href="/profile"
-                    class="grid h-[34px] w-[34px] cursor-pointer place-items-center rounded-full bg-[linear-gradient(145deg,#8B7CFF,#2DE2E6)] font-display text-xs font-semibold text-[#061020] shadow-[0_0_18px_rgba(139,124,255,0.4)] transition duration-200 hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-navy-base"
+                    class="group relative mb-1 grid h-[34px] w-[34px] cursor-pointer place-items-center rounded-full bg-[linear-gradient(145deg,#8B7CFF,#2DE2E6)] font-display text-xs font-semibold text-[#061020] shadow-[0_0_18px_rgba(139,124,255,0.4)] transition duration-200 hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-navy-base"
                     :class="onProfile ? 'ring-2 ring-accent-cyan ring-offset-2 ring-offset-navy-base' : ''"
                     :aria-current="onProfile ? 'page' : undefined"
-                    :aria-label="accountName ? `Profile, ${accountName}` : 'Profile'"
+                    :aria-label="`Profile, signed in as ${accountName} (${accountEmail})`"
                 >
-                    {{ initials }}
+                    <span aria-hidden="true">{{ initials }}</span>
+                    <span
+                        class="absolute -bottom-px -right-px h-2.5 w-2.5 rounded-full border-2 border-[#0F1B2D] bg-status-completed shadow-[0_0_8px_rgba(85,217,139,0.7)]"
+                        aria-hidden="true"
+                    />
+
+                    <span
+                        class="pointer-events-none absolute left-full top-1/2 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg border border-[#A0CDF5]/[0.16] bg-panel-base/95 px-3 py-2 font-mono text-[10.5px] text-ink-300 opacity-0 shadow-[0_12px_30px_rgba(2,8,18,0.55)] backdrop-blur-md transition duration-150 group-hover:opacity-100 group-focus-visible:opacity-100"
+                        aria-hidden="true"
+                    >
+                        Signed in as <span class="text-glow-cyan">{{ accountEmail }}</span>
+                    </span>
                 </Link>
 
-                <Link
-                    href="/logout"
-                    method="post"
-                    as="button"
+                <button
                     type="button"
-                    :class="`${TILE} ${SIGN_OUT}`"
-                    :aria-label="accountName ? `Log out, ${accountName}` : 'Log out'"
-                    title="Log out"
+                    :class="[TILE, signingOut ? 'cursor-wait border-status-critical/30 bg-status-critical/[0.10] text-status-critical' : SIGN_OUT]"
+                    :aria-label="signingOut ? 'Signing out…' : accountName ? `Log out, ${accountName}` : 'Log out'"
+                    :aria-busy="signingOut"
+                    :title="signingOut ? undefined : 'Log out'"
+                    @click="signOut"
                 >
                     <svg
+                        v-if="signingOut"
+                        class="h-[18px] w-[18px] animate-spin"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden="true"
+                    >
+                        <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-opacity="0.25" stroke-width="2" />
+                        <path d="M20.5 12A8.5 8.5 0 0 0 12 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <svg
+                        v-else
                         class="h-[19px] w-[19px]"
                         viewBox="0 0 24 24"
                         fill="none"
@@ -293,7 +345,15 @@ const classesFor = (item: NavItem): string => {
                         <path d="M14 7.5 18.5 12 14 16.5M18.5 12H8" stroke-linecap="round" stroke-linejoin="round" />
                         <path d="M13 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7" />
                     </svg>
-                </Link>
+
+                    <span
+                        v-if="signingOut"
+                        class="pointer-events-none absolute left-full top-1/2 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg border border-[#A0CDF5]/[0.16] bg-panel-base/95 px-3 py-2 font-mono text-[10.5px] text-ink-300 shadow-[0_12px_30px_rgba(2,8,18,0.55)] backdrop-blur-md"
+                        aria-hidden="true"
+                    >
+                        Signing out…
+                    </span>
+                </button>
             </template>
 
             <Link
@@ -323,5 +383,7 @@ const classesFor = (item: NavItem): string => {
         >
             <slot />
         </main>
+
+        <FlashToast sidebar />
     </div>
 </template>

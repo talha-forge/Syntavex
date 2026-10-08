@@ -81,5 +81,27 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
         $response->assertRedirect('/');
+        $response->assertSessionHas('toast', [
+            'tone' => 'success',
+            'message' => 'Signed out. Enter the demo again anytime.',
+        ]);
+    }
+
+    public function test_the_logout_toast_is_shared_once_on_the_next_page(): void
+    {
+        $this->seed();
+
+        $this->actingAs(User::query()->firstOrFail())->post('/logout');
+
+        $this->get('/')->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('flash.toast.tone', 'success')
+                ->where('flash.toast.message', 'Signed out. Enter the demo again anytime.')
+                ->has('flash.toast.id'),
+        );
+
+        $this->get('/')->assertInertia(
+            fn (AssertableInertia $page) => $page->where('flash.toast', null),
+        );
     }
 }

@@ -94,6 +94,7 @@ class DashboardController extends Controller
                 'latest_run_label' => $latestRun === null
                     ? 'No runs recorded'
                     : Carbon::parse($latestRun)->format('M j · H:i'),
+                'latest_run_at' => $latestRun === null ? null : Carbon::parse($latestRun)->toIso8601String(),
             ],
             'kpis' => $this->kpis($runs, $range),
             'fleetTrust' => $this->fleetTrust($runs),

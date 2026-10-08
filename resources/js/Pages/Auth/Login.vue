@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { DEMO_ACCOUNT, useDemoLogin } from '@/composables/useDemoLogin';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 const props = defineProps<{
@@ -24,20 +25,12 @@ const queueHint = computed(() => {
     return `${awaiting}, including ${frozen === 1 ? 'one' : frozen} frozen mid-deletion.`;
 });
 
-const DEMO = {
-    email: 'demo@syntavex.app',
-    password: 'syntavex-demo',
-} as const;
-
 const credentials = [
-    { key: 'email', label: 'Email', value: DEMO.email },
-    { key: 'password', label: 'Password', value: DEMO.password },
+    { key: 'email', label: 'Email', value: DEMO_ACCOUNT.email },
+    { key: 'password', label: 'Password', value: DEMO_ACCOUNT.password },
 ] as const;
 
-const form = useForm({
-    email: '',
-    password: '',
-});
+const { form, enterDemo } = useDemoLogin();
 
 const copied = ref<string | null>(null);
 let copiedTimer: ReturnType<typeof setTimeout> | undefined;
@@ -52,12 +45,6 @@ const copy = async (key: string, value: string) => {
     copied.value = key;
     clearTimeout(copiedTimer);
     copiedTimer = setTimeout(() => (copied.value = null), 1600);
-};
-
-const enterDemo = () => {
-    form.email = DEMO.email;
-    form.password = DEMO.password;
-    form.post(route('login'));
 };
 </script>
 

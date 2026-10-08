@@ -337,6 +337,7 @@ class CommandCentreTest extends TestCase
             fn (AssertableInertia $page) => $page
                 ->where('pulse.live', true)
                 ->where('pulse.latest_run_label', Carbon::parse($newest)->format('M j · H:i'))
+                ->where('pulse.latest_run_at', Carbon::parse($newest)->toIso8601String())
         );
 
         AuditEvent::query()->delete();
