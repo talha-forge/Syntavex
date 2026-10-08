@@ -166,6 +166,7 @@ class RunInspectorResource extends JsonResource
                 'id' => $step->id,
                 'order_label' => str_pad((string) $step->step_order, 2, '0', STR_PAD_LEFT),
                 'time' => $step->created_at?->format('H:i:s.v'),
+                'at' => $step->created_at?->copy()->utc()->format('Y-m-d\TH:i:s.vP'),
                 'type' => $step->step_type,
                 'name' => $step->step_name,
                 'tone' => $this->stepTone($step),
@@ -373,6 +374,7 @@ class RunInspectorResource extends JsonResource
                 'status' => $approval->status,
                 'by' => $approval->resolved_by,
                 'at' => $approval->resolved_at?->format('Y-m-d H:i:s').' UTC',
+                'at_iso' => $approval->resolved_at?->toIso8601String(),
                 'notes' => $approval->resolution_notes,
             ],
         ];
@@ -437,14 +439,16 @@ class RunInspectorResource extends JsonResource
                 'tone' => 'ink',
             ],
             [
-                'label' => 'Started (UTC)',
+                'label' => 'Started',
                 'value' => $this->created_at?->format('Y-m-d H:i:s'),
                 'tone' => 'ink',
+                'at' => $this->created_at?->toIso8601String(),
             ],
             [
-                'label' => 'Ended (UTC)',
+                'label' => 'Ended',
                 'value' => $this->endedAt()?->format('Y-m-d H:i:s') ?? 'still running',
                 'tone' => 'ink',
+                'at' => $this->endedAt()?->toIso8601String(),
             ],
             [
                 'label' => 'Triggered by',

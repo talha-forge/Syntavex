@@ -8,6 +8,7 @@ import ToolCallCard from '@/Components/ToolCallCard.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import type { HeaderStat, RunInspectorProps, StatusTone, TraceNode } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
+import { localClock, localDateTime, localShortDate, localZone } from '@/composables/useLocalTime';
 import { computed, nextTick, ref } from 'vue';
 
 const props = defineProps<RunInspectorProps>();
@@ -45,25 +46,20 @@ const focusStep = async (node: TraceNode): Promise<void> => {
         ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 };
 
-// The server sends UTC; render timestamped stats in the visitor's local time.
-const localStat = (stat: HeaderStat): HeaderStat => {
-    if (!stat.at) {
-        return stat;
-    }
-
-    const at = new Date(stat.at);
-    const zone = new Intl.DateTimeFormat(undefined, { timeZoneName: 'short' })
-        .formatToParts(at)
-        .find((part) => part.type === 'timeZoneName')?.value;
-
-    return {
-        ...stat,
-        value: at.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
-        caption: [at.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), zone].filter(Boolean).join(' · '),
-    };
-};
+const localStat = (stat: HeaderStat): HeaderStat =>
+    stat.at
+        ? {
+              ...stat,
+              value: localClock(stat.at),
+              caption: [localShortDate(stat.at), localZone(new Date(stat.at))].filter(Boolean).join(' · '),
+          }
+        : stat;
 
 const headerStats = computed(() => props.header.map(localStat));
+
+const metadata = computed(() =>
+    props.run.metadata.map((row) => (row.at ? { ...row, value: localDateTime(row.at) } : row)),
+);
 
 const breadcrumb = computed(() =>
     [props.run.workspace.slug, props.run.workspace.tier]
@@ -247,7 +243,7 @@ const breadcrumb = computed(() =>
                         </h2>
                         <dl class="mt-[11px] flex flex-col gap-[9px]">
                             <div
-                                v-for="row in run.metadata"
+                                v-for="row in metadata"
                                 :key="row.label"
                                 class="flex items-center gap-2.5"
                             >

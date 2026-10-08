@@ -415,6 +415,8 @@ export interface ReasoningEntry {
     id: number;
     order_label: string;
     time: string | null;
+    /** ISO timestamp; rendered in the visitor's local time. */
+    at: string | null;
     type: string;
     name: string;
     tone: TraceTone;
@@ -483,6 +485,8 @@ export interface DecisionResolution {
     status: string;
     by: string | null;
     at: string | null;
+    /** ISO timestamp of `at`; rendered in the visitor's local time. */
+    at_iso: string | null;
     notes: string | null;
 }
 
@@ -499,6 +503,8 @@ export interface MetadataRow {
     value: string | null;
     href?: string | null;
     tone: 'ink' | 'accent';
+    /** ISO timestamp; when set, the value is shown in the visitor's local time. */
+    at?: string | null;
 }
 
 export interface RelatedRun {

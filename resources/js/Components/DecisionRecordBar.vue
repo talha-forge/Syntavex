@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { localDateTime } from '@/composables/useLocalTime';
 import type { DecisionRecord } from '@/types';
 import { Link } from '@inertiajs/vue3';
 
@@ -50,7 +51,7 @@ defineProps<{ decision: DecisionRecord }>();
                     <path d="m4 12 5 5L20 6" />
                 </svg>
                 {{ decision.resolution.status.toUpperCase() }}
-                <span class="font-normal text-ink-500">{{ decision.resolution.at }}</span>
+                <span class="font-normal text-ink-500">{{ decision.resolution.at_iso ? localDateTime(decision.resolution.at_iso) : decision.resolution.at }}</span>
             </p>
         </div>
     </section>

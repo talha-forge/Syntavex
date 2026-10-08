@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { localClock, localZone } from '@/composables/useLocalTime';
 import type { LineTone, ReasoningTimeline } from '@/types';
 
-defineProps<{
+const props = defineProps<{
     timeline: ReasoningTimeline;
     activeStepId: number | null;
 }>();
@@ -12,6 +13,8 @@ const LINE: Record<LineTone, string> = {
     warn: 'text-[#FFE1A6]',
     critical: 'text-glow-red',
 };
+
+const meta = [props.timeline.meta, localZone()].filter(Boolean).join(' · ');
 </script>
 
 <template>
@@ -34,7 +37,7 @@ const LINE: Record<LineTone, string> = {
                 {{ timeline.title }}
             </h2>
             <div class="flex-1" />
-            <span class="font-mono text-[10px] text-ink-900">{{ timeline.meta }}</span>
+            <span class="font-mono text-[10px] text-ink-900">{{ meta }}</span>
         </header>
 
         <div class="relative min-h-0 flex-1 overflow-y-auto px-5 py-4">
@@ -63,7 +66,7 @@ const LINE: Record<LineTone, string> = {
                     "
                 >
                     <p class="text-ink-900">
-                        [{{ entry.time }}]
+                        [{{ entry.at ? localClock(entry.at, true) : entry.time }}]
                         <span class="text-accent-violet">{{ entry.type }}</span>
                         <span class="text-ink-800"> ▸ </span>
                         <span class="text-ink-600">{{ entry.order_label }} {{ entry.name }}</span>

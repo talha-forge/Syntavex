@@ -111,6 +111,7 @@ class RunInspectorTest extends TestCase
 
         foreach ($this->props($run)['run']['reasoning']['entries'] as $entry) {
             $this->assertMatchesRegularExpression('/^\d{2}:\d{2}:\d{2}\.\d{3}$/', $entry['time']);
+            $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}\+00:00$/', $entry['at']);
             $this->assertNotEmpty($entry['lines']);
         }
     }
@@ -183,6 +184,7 @@ class RunInspectorTest extends TestCase
         $this->assertFalse($decision['pending']);
         $this->assertSame('approved', $decision['resolution']['status']);
         $this->assertSame('mara.kessler', $decision['resolution']['by']);
+        $this->assertSame($run->fresh()->approvalRequests()->first()->resolved_at->toIso8601String(), $decision['resolution']['at_iso']);
         $this->assertStringContainsString('APPROVED', $decision['eyebrow']);
     }
 
@@ -248,18 +250,23 @@ class RunInspectorTest extends TestCase
         }
     }
 
-    public function test_the_metadata_strip_reports_real_utc_timestamps(): void
+    public function test_the_metadata_strip_reports_real_timestamps(): void
     {
         $run = $this->flagship();
         $rows = collect($this->props($run)['run']['metadata'])->keyBy('label');
 
         $this->assertSame(
             $run->created_at->format('Y-m-d H:i:s'),
-            $rows['Started (UTC)']['value'],
+            $rows['Started']['value'],
         );
+        $this->assertSame($run->created_at->toIso8601String(), $rows['Started']['at']);
         $this->assertSame(
             $run->created_at->copy()->addMilliseconds($run->total_duration_ms)->format('Y-m-d H:i:s'),
-            $rows['Ended (UTC)']['value'],
+            $rows['Ended']['value'],
+        );
+        $this->assertSame(
+            $run->created_at->copy()->addMilliseconds($run->total_duration_ms)->toIso8601String(),
+            $rows['Ended']['at'],
         );
         $this->assertSame('northstar-support', $rows['Workspace']['value']);
         $this->assertSame('claude-opus-5', $rows['Model']['value']);
