@@ -514,6 +514,8 @@ export interface HeaderStat {
     value: string;
     caption: string | null;
     tone: 'ink' | 'accent';
+    /** ISO timestamp; when set, value and caption are shown in the visitor's local time. */
+    at?: string | null;
 }
 
 export interface InspectorRun {

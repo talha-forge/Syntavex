@@ -124,11 +124,11 @@ php artisan test
 
 ---
 
-> **Portfolio concept by Talha Ali. Seeded data, no live AI integrations.**
+> **Concept by Talha Ali. Seeded data, no live AI integrations.**
 
 ## Author
 
 **Talha Ali**
 
-- LinkedIn: [linkedin.com/in/your-profile](#)
-- Portfolio: [your-portfolio.com](#)
+- LinkedIn: [linkedin.com/in/talha-ali-b7959b132](https://www.linkedin.com/in/talha-ali-b7959b132)
+- Portfolio: [robocoders.dev](https://robocoders.dev/)

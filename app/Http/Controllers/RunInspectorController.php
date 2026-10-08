@@ -47,6 +47,7 @@ class RunInspectorController extends Controller
                 'value' => $run->created_at?->format('H:i:s') ?? '—',
                 'caption' => $run->created_at?->format('M j').' · UTC',
                 'tone' => 'ink',
+                'at' => $run->created_at?->toIso8601String(),
             ],
             [
                 'label' => 'DURATION',

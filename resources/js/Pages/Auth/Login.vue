@@ -71,7 +71,7 @@ const copy = async (key: string, value: string) => {
 
         <section
             aria-labelledby="demo-access-heading"
-            class="relative mt-6 overflow-hidden rounded-xl border border-accent-cyan/25 bg-[linear-gradient(150deg,rgba(45,226,230,0.08),rgba(26,44,72,0.45)_55%,rgba(139,124,255,0.08))] p-4 shadow-[inset_0_1px_0_0_rgb(215_245_255/0.08)]"
+            class="relative mt-6 overflow-hidden rounded-xl border border-accent-cyan/[0.16] bg-[linear-gradient(150deg,rgba(45,226,230,0.08),rgba(26,44,72,0.45)_55%,rgba(139,124,255,0.08))] p-4 shadow-[inset_0_1px_0_0_rgb(215_245_255/0.08)]"
         >
             <div class="flex items-center justify-between gap-3">
                 <h2 id="demo-access-heading" class="panel-heading">Demo access</h2>
@@ -90,7 +90,7 @@ const copy = async (key: string, value: string) => {
                 <div
                     v-for="item in credentials"
                     :key="item.key"
-                    class="flex items-center gap-3 rounded-lg border border-white/[0.07] bg-navy-base/50 py-1.5 pl-3 pr-1.5"
+                    class="flex items-center gap-3 rounded-lg border border-white/[0.05] bg-[rgba(3,8,15,0.72)] py-1.5 pl-3 pr-1.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.45)]"
                 >
                     <dt class="w-[4.5rem] shrink-0 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-ink-700">
                         {{ item.label }}
@@ -137,7 +137,7 @@ const copy = async (key: string, value: string) => {
 
             <button
                 type="button"
-                class="btn-glass btn-glass-primary mt-4 w-full justify-center"
+                class="mt-4 flex h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-[linear-gradient(110deg,#2DE2E6,#8B7CFF)] font-display text-sm font-semibold text-[#04121C] shadow-[0_0_28px_rgba(45,226,230,0.32)] transition duration-150 hover:shadow-[0_0_36px_rgba(45,226,230,0.45)] hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-navy-base disabled:opacity-60"
                 :disabled="form.processing"
                 @click="enterDemo"
             >
@@ -145,7 +145,8 @@ const copy = async (key: string, value: string) => {
                 <span aria-hidden="true">→</span>
             </button>
 
-            <p v-if="queueHint" class="mt-3 text-center text-[11px] text-ink-700">
+            <p v-if="queueHint" class="mt-3 flex items-center justify-center gap-2 text-center text-[11px] text-ink-700">
+                <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-status-review shadow-[0_0_6px_#F8C65D]" aria-hidden="true" />
                 {{ queueHint }}
             </p>
         </section>
@@ -153,9 +154,26 @@ const copy = async (key: string, value: string) => {
         <p v-if="form.errors.email" class="field-error mt-3">{{ form.errors.email }}</p>
 
         <template #footer>
-            <p class="text-center text-[11px] text-ink-800">
-                Portfolio concept by Talha Ali · Seeded data, no live AI integrations.
-            </p>
+            <div class="space-y-1 text-center">
+                <p class="text-xs text-ink-500">
+                    Designed &amp; built by
+                    <a
+                        href="https://www.linkedin.com/in/talha-ali-b7959b132"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="footer-link"
+                    >Talha Ali</a>
+                    ·
+                    <a href="https://robocoders.dev/" target="_blank" rel="noopener noreferrer" class="footer-link">Robo Coders</a>
+                </p>
+                <p class="text-[10.5px] text-ink-800">Concept · Seeded data, no live AI integrations</p>
+            </div>
         </template>
     </GuestLayout>
 </template>
+
+<style scoped>
+.footer-link {
+    @apply text-ink-300 underline decoration-transparent decoration-1 underline-offset-[3px] transition duration-150 hover:text-glow-cyan hover:decoration-accent-cyan focus:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-accent-cyan;
+}
+</style>

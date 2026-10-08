@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3';
 </script>
 
 <template>
-    <div class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-navy-base px-5 py-12">
+    <div class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-navy-base px-5 py-10">
         <div class="pointer-events-none absolute inset-0" aria-hidden="true">
             <div
                 class="absolute -left-[180px] -top-[260px] h-[900px] w-[900px] rounded-full bg-[radial-gradient(circle,rgba(45,226,230,0.16)_0%,rgba(45,226,230,0.05)_38%,rgba(45,226,230,0)_68%)]"
@@ -18,7 +18,7 @@ import { Link } from '@inertiajs/vue3';
             />
         </div>
 
-        <div class="relative flex w-full max-w-[30rem] flex-col items-center gap-7">
+        <div class="relative flex w-full max-w-[480px] flex-col items-center gap-6">
             <Link
                 href="/"
                 class="flex items-center gap-3 rounded-xl px-1 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-navy-base"
@@ -44,9 +44,15 @@ import { Link } from '@inertiajs/vue3';
                 </span>
             </Link>
 
-            <div class="glass-panel w-full p-7">
+            <div
+                class="glass-panel w-full rounded-[18px] p-9 shadow-[inset_0_1px_0_0_rgba(45,226,230,0.22),0_18px_44px_rgba(2,8,18,0.5)]"
+            >
                 <div
-                    class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-accent-cyan/70 via-accent-violet/40 to-transparent"
+                    class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-accent-cyan/0 via-accent-cyan/80 to-accent-violet/0"
+                    aria-hidden="true"
+                />
+                <div
+                    class="pointer-events-none absolute inset-x-0 top-0 h-16 bg-[linear-gradient(180deg,rgba(45,226,230,0.07),rgba(45,226,230,0))]"
                     aria-hidden="true"
                 />
                 <div

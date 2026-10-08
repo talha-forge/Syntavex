@@ -6,7 +6,7 @@ import PolicyRiskPanel from '@/Components/PolicyRiskPanel.vue';
 import ReasoningTrace from '@/Components/ReasoningTrace.vue';
 import ToolCallCard from '@/Components/ToolCallCard.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import type { RunInspectorProps, StatusTone, TraceNode } from '@/types';
+import type { HeaderStat, RunInspectorProps, StatusTone, TraceNode } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { computed, nextTick, ref } from 'vue';
 
@@ -44,6 +44,26 @@ const focusStep = async (node: TraceNode): Promise<void> => {
         .getElementById(`reasoning-step-${node.id}`)
         ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 };
+
+// The server sends UTC; render timestamped stats in the visitor's local time.
+const localStat = (stat: HeaderStat): HeaderStat => {
+    if (!stat.at) {
+        return stat;
+    }
+
+    const at = new Date(stat.at);
+    const zone = new Intl.DateTimeFormat(undefined, { timeZoneName: 'short' })
+        .formatToParts(at)
+        .find((part) => part.type === 'timeZoneName')?.value;
+
+    return {
+        ...stat,
+        value: at.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
+        caption: [at.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), zone].filter(Boolean).join(' · '),
+    };
+};
+
+const headerStats = computed(() => props.header.map(localStat));
 
 const breadcrumb = computed(() =>
     [props.run.workspace.slug, props.run.workspace.tier]
@@ -107,7 +127,7 @@ const breadcrumb = computed(() =>
                         class="flex flex-wrap gap-px overflow-hidden rounded-xl border border-[rgba(160,205,245,0.12)] bg-[rgba(160,205,245,0.10)]"
                     >
                         <div
-                            v-for="stat in header"
+                            v-for="stat in headerStats"
                             :key="stat.label"
                             class="flex min-w-[106px] flex-col gap-[3px] bg-[rgba(10,20,35,0.85)] px-[18px] py-2.5"
                         >
